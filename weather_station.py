@@ -120,14 +120,15 @@ def get_temp():
     # Now, grab the CPU temperature
     t_cpu = get_cpu_temp()
     # Calculate the 'real' temperature compensating for CPU heating
-    t_corr = t - ((t_cpu - t) / 1.5)
+    #t_corr = t - ((t_cpu - t) / 1.5)
+    t_corr = t - ((t_cpu - t) / 0.85)
     # Finally, average out that value across the last three readings
     t_corr = get_smooth(t_corr)
     # convoluted, right?
     # Return the calculated temperature
     return t_corr
 
-def get_humiditiy_temp():
+def get_humidity_temp():
     return sense.get_temperature_from_humidity()
 
 def get_pressure_temp():
