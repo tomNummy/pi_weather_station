@@ -142,7 +142,7 @@ def main():
             humidity = round(sense.get_humidity(), 2)
             # convert pressure from millibars to inHg before posting
             pressure = round(sense.get_pressure() * 0.0295300, 2)
-            print("Temp: %sF (%sC), Pressure: %s inHg, Humidity: %s%%" % (t_temp_f, t_temp, pressure, humidity))
+            print("Temp: %sF (%sC), Pressure: %s inHg, Humidity: %s%%" % (t_temp_f, t_temp_c, pressure, humidity))
             # get the current minute
             current_minute = datetime.datetime.now().minute
             # is it the same minute as the last time we checked?
