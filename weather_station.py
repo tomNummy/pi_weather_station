@@ -155,9 +155,7 @@ def main():
                     # get the reading timestamp
                     now = datetime.datetime.now()
                     print("\n%d minute mark (%d @ %s)" % (MEASUREMENT_INTERVAL, current_minute, str(now)))
-			    pass
-			    pass
-			pass
+
                     # set last_temp to the current temperature before we measure again
                     last_temp = t_temp_f
                     # ========================================================
