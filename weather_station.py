@@ -4,6 +4,8 @@
     By John M. Wargo
     www.johnwargo.com
 
+    Edited by Tom Nummy to use temper-usb
+
     This is a Raspberry Pi project that measures weather values (temperature, humidity and pressure) using
     the Astro Pi Sense HAT then uploads the data to a Weather Underground weather station.
 ********************************************************************************************************************'''
@@ -14,6 +16,8 @@ import datetime
 import os
 import sys
 import time
+import json
+import temper
 from urllib import urlencode
 
 import urllib2
@@ -35,44 +39,6 @@ WU_URL = "http://weatherstation.wunderground.com/weatherstation/updateweathersta
 SINGLE_HASH = "#"
 HASHES = "########################################"
 SLASH_N = "\n"
-
-# constants used to display an up and down arrows plus bars
-# modified from https://www.raspberrypi.org/learning/getting-started-with-the-sense-hat/worksheet/
-# set up the colours (blue, red, empty)
-b = [0, 0, 255]  # blue
-r = [255, 0, 0]  # red
-e = [0, 0, 0]  # empty
-# create images for up and down arrows
-arrow_up = [
-    e, e, e, r, r, e, e, e,
-    e, e, r, r, r, r, e, e,
-    e, r, e, r, r, e, r, e,
-    r, e, e, r, r, e, e, r,
-    e, e, e, r, r, e, e, e,
-    e, e, e, r, r, e, e, e,
-    e, e, e, r, r, e, e, e,
-    e, e, e, r, r, e, e, e
-]
-arrow_down = [
-    e, e, e, b, b, e, e, e,
-    e, e, e, b, b, e, e, e,
-    e, e, e, b, b, e, e, e,
-    e, e, e, b, b, e, e, e,
-    b, e, e, b, b, e, e, b,
-    e, b, e, b, b, e, b, e,
-    e, e, b, b, b, b, e, e,
-    e, e, e, b, b, e, e, e
-]
-bars = [
-    e, e, e, e, e, e, e, e,
-    e, e, e, e, e, e, e, e,
-    r, r, r, r, r, r, r, r,
-    r, r, r, r, r, r, r, r,
-    b, b, b, b, b, b, b, b,
-    b, b, b, b, b, b, b, b,
-    e, e, e, e, e, e, e, e,
-    e, e, e, e, e, e, e, e
-]
 
 
 def c_to_f(input_temp):
@@ -128,6 +94,9 @@ def get_temp():
     # Return the calculated temperature
     return t_corr
 
+def get_temper_temp():
+    return temper_device.get_temperature()
+
 def get_humidity_temp():
     return sense.get_temperature_from_humidity()
 
@@ -161,6 +130,7 @@ def main():
             # If you've mounted the Sense HAT outside of the Raspberry Pi case, then you don't need that
             # calculation. So, when the Sense HAT is external, replace the following line (comment it out  with a #)
             calc_temp = get_temp()
+            t_temp    = get_temper_temp()
             # with the following line (uncomment it, remove the # at the line start)
             # calc_temp = sense.get_temperature_from_pressure()
             # or the following line (each will work)
@@ -170,13 +140,13 @@ def main():
             # temp for our purposes
             temp_c = round(calc_temp, 1)
             temp_f = round(c_to_f(calc_temp), 1)
+
+            t_temp_f = c_to_f(t_temp)
+
             humidity = round(sense.get_humidity(), 0)
             # convert pressure from millibars to inHg before posting
             pressure = round(sense.get_pressure() * 0.0295300, 1)
-            print("Temp: %sF (%sC), Pressure: %s inHg, Humidity: %s%%" % (temp_f, temp_c, pressure, humidity))
-	    print("CPU TEMP : "+str(get_cpu_temp()))
-	    print("PRESSURE TEMP: "+str(get_pressure_temp()) )
-	    print("HUMIDITY TEMP: "+str(get_humidity_temp()) )
+            print("Temp: %sF (%sC), Pressure: %s inHg, Humidity: %s%%" % (t_temp_f, t_temp, pressure, humidity))
             # get the current minute
             current_minute = datetime.datetime.now().minute
             # is it the same minute as the last time we checked?
@@ -191,24 +161,15 @@ def main():
                     # get the reading timestamp
                     now = datetime.datetime.now()
                     print("\n%d minute mark (%d @ %s)" % (MEASUREMENT_INTERVAL, current_minute, str(now)))
-                    # did the temperature go up or down?
-                    if last_temp != temp_f:
-                        if last_temp > temp_f:
-                            # display a blue, down arrow
-                            #sense.set_pixels(arrow_down)
 			    pass
-                        else:
-                            # display a red, up arrow
-                            #sense.set_pixels(arrow_up)
 			    pass
-                    else:
-                        # temperature stayed the same
-                        # display red and blue bars
-                        #sense.set_pixels(bars)
 			pass
                     # set last_temp to the current temperature before we measure again
-                    last_temp = temp_f
-
+                    last_temp = t_temp_f
+                    # ========================================================
+                    # Save to local log file
+                    # ========================================================
+                    
                     # ========================================================
                     # Upload the weather data to Weather Underground
                     # ========================================================
@@ -222,7 +183,7 @@ def main():
                             "ID": wu_station_id,
                             "PASSWORD": wu_station_key,
                             "dateutc": "now",
-                            "tempf": str(temp_f),
+                            "tempf": str(t_temp_f),
                             "humidity": str(humidity),
                             "baromin": str(pressure),
                         }
@@ -251,6 +212,7 @@ def main():
 print(SLASH_N + HASHES)
 print(SINGLE_HASH, "Pi Weather Station                  ", SINGLE_HASH)
 print(SINGLE_HASH, "By John M. Wargo (www.johnwargo.com)", SINGLE_HASH)
+print(SINGLE_HASH, "Edited By Tom Nummy", SINGLE_HASH)
 print(HASHES)
 
 # make sure we don't have a MEASUREMENT_INTERVAL > 60
@@ -290,6 +252,21 @@ try:
 except:
     print("Unable to initialize the Sense HAT library:", sys.exc_info()[0])
     sys.exit(1)
+
+# ============================================================================
+# initialize temperusb thermometer object
+# ============================================================================
+try:
+    temper_handler = temper.TemperHandler()
+    temper_device = temper_handler.get_devices()[0]
+    print("Current temper temperature:", c_to_f(get_temper_temp()) )
+except:
+    print("Unable to initialize the temperUSB thermometer")
+    sys.exit(1)
+
+# ============================================================================
+# create data log file
+# ============================================================================
 
 print("Initialization complete!")
 
