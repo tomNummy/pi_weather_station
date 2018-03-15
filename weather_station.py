@@ -281,8 +281,9 @@ try:
         with open(log_name, mode='w', encoding='utf-8') as f:
             json.dump([], f)
 
-except:
+except Exception as E:
     print("Couldn't initialize a log file!")
+    print E
 
 print("Initialization complete!")
 
