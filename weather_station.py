@@ -17,13 +17,15 @@ import os
 import sys
 import time
 import json
-import temper
 from urllib import urlencode
 
 import urllib2
 from sense_hat import SenseHat
 
 from config import Config
+
+sys.path.insert(0, 'temperusb')
+import temper
 
 # ============================================================================
 # Constants
