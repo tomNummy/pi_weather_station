@@ -130,22 +130,16 @@ def main():
             # If you've mounted the Sense HAT outside of the Raspberry Pi case, then you don't need that
             # calculation. So, when the Sense HAT is external, replace the following line (comment it out  with a #)
             calc_temp = get_temp()
-            t_temp    = get_temper_temp()
-            # with the following line (uncomment it, remove the # at the line start)
-            # calc_temp = sense.get_temperature_from_pressure()
-            # or the following line (each will work)
-            # calc_temp = sense.get_temperature_from_humidity()
-            # ========================================================
-            # At this point, we should have an accurate temperature, so lets use the recorded (or calculated)
-            # temp for our purposes
-            temp_c = round(calc_temp, 1)
-            temp_f = round(c_to_f(calc_temp), 1)
+            t_temp_c    = get_temper_temp()
 
-            t_temp_f = c_to_f(t_temp)
+            temp_c = round(calc_temp, 2)
+            temp_f = round(c_to_f(calc_temp), 2)
+            temp_cpu = c_to_f(get_cpu_temp())
+            t_temp_f = c_to_f(t_temp_c)
 
-            humidity = round(sense.get_humidity(), 0)
+            humidity = round(sense.get_humidity(), 2)
             # convert pressure from millibars to inHg before posting
-            pressure = round(sense.get_pressure() * 0.0295300, 1)
+            pressure = round(sense.get_pressure() * 0.0295300, 2)
             print("Temp: %sF (%sC), Pressure: %s inHg, Humidity: %s%%" % (t_temp_f, t_temp, pressure, humidity))
             # get the current minute
             current_minute = datetime.datetime.now().minute
@@ -169,7 +163,19 @@ def main():
                     # ========================================================
                     # Save to local log file
                     # ========================================================
-                    
+                    entry = {'datetime'   : datetime.datetime.now(),
+                            'temper_temp' : t_temp_f,
+                            'sense_temp'  : temp_f,
+                            'sense_humd'  : humidity,
+                            'sense_pres'  : pressure,
+                            'cpu_temp'    : temp_cpu
+                            }
+                    with open(log_name, 'r') as feedjson:
+                        feed = json.load(feedjson)
+                    feed.append(entry)
+                    with open(log_name, 'w') as jsonf:
+                        json.dump(feed, jsonf)
+
                     # ========================================================
                     # Upload the weather data to Weather Underground
                     # ========================================================
@@ -267,6 +273,16 @@ except:
 # ============================================================================
 # create data log file
 # ============================================================================
+try:
+    # using this fixed file name for now...
+    log_name = 'data.log'
+    # if temp.log doesn't exist, make it
+    if not os.path.isfile(log_name):
+        with open(log_name, mode='w', encoding='utf-8') as f:
+            json.dump([], f)
+
+except:
+    print("Couldn't initialize a log file!")
 
 print("Initialization complete!")
 
