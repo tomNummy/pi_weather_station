@@ -174,7 +174,7 @@ def main():
                         feed = json.load(feedjson)
                     feed.append(entry)
                     with open(log_name, 'w') as jsonf:
-                        json.dump(feed, jsonf)
+                        json.dump(feed, jsonf, default=str)
 
                     # ========================================================
                     # Upload the weather data to Weather Underground
