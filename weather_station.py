@@ -163,7 +163,7 @@ def main():
                     # ========================================================
                     # Save to local log file
                     # ========================================================
-                    entry = {'datetime'   : datetime.datetime.now(),
+                    entry = {'datetime'   : datetime.datetime.now().strftime('%Y%m%d%H%M%s'),
                             'temper_temp' : t_temp_f,
                             'sense_temp'  : temp_f,
                             'sense_humd'  : humidity,
@@ -174,7 +174,7 @@ def main():
                         feed = json.load(feedjson)
                     feed.append(entry)
                     with open(log_name, 'w') as jsonf:
-                        json.dump(feed, jsonf, default=str)
+                        json.dump(feed, jsonf)
 
                     # ========================================================
                     # Upload the weather data to Weather Underground
