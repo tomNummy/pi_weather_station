@@ -278,7 +278,7 @@ try:
     log_name = 'data.log'
     # if temp.log doesn't exist, make it
     if not os.path.isfile(log_name):
-        with open(log_name, mode='w', encoding='utf-8') as f:
+        with open(log_name, 'w') as f:
             json.dump([], f)
 
 except Exception as E:
