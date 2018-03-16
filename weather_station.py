@@ -164,8 +164,8 @@ def main():
                     # Save to local log file
                     # ========================================================
                     entry = {'datetime'   : datetime.datetime.now().strftime('%Y%m%d%H%M%s'),
-                            'temper_temp' : round(t_temp_f, 2)
-                            'sense_temp'  : round(temp_f, 2)
+                            'temper_temp' : round(t_temp_f, 2),
+                            'sense_temp'  : round(temp_f, 2),
                             'sense_humd'  : humidity,
                             'sense_pres'  : pressure,
                             'cpu_temp'    : temp_cpu
