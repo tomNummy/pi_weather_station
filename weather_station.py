@@ -283,7 +283,7 @@ try:
 
 except Exception as E:
     print("Couldn't initialize a log file!")
-    print E
+    print(E)
 
 print("Initialization complete!")
 
