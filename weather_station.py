@@ -164,15 +164,18 @@ def main():
                     # Save to local log file
                     # ========================================================
                     entry = {'datetime'   : datetime.datetime.now().strftime('%Y%m%d%H%M%s'),
-                            'temper_temp' : t_temp_f,
-                            'sense_temp'  : temp_f,
+                            'temper_temp' : round(t_temp_f, 2)
+                            'sense_temp'  : round(temp_f, 2)
                             'sense_humd'  : humidity,
                             'sense_pres'  : pressure,
                             'cpu_temp'    : temp_cpu
                             }
+                    # read json log file into list
                     with open(log_name, 'r') as feedjson:
                         feed = json.load(feedjson)
+                    # append to list
                     feed.append(entry)
+                    # write back to json log file
                     with open(log_name, 'w') as jsonf:
                         json.dump(feed, jsonf)
 
