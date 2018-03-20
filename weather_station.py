@@ -97,7 +97,11 @@ def get_temp():
     return t_corr
 
 def get_temper_temp():
-    return temper_device.get_temperature()
+    return temper_calib(temper_device.get_temperature())
+
+def temper_calib(reading):
+    scale, offset = 1.0, -20.0
+    return scale * reading + offset
 
 def get_humidity_temp():
     return sense.get_temperature_from_humidity()
