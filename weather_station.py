@@ -100,7 +100,7 @@ def get_temper_temp():
     return temper_calib(temper_device.get_temperature())
 
 def temper_calib(reading):
-    scale, offset = 1.0, -20.0
+    scale, offset = 1.0, -7.0
     return scale * reading + offset
 
 def get_humidity_temp():
