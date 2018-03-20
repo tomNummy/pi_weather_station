@@ -24,7 +24,7 @@ from sense_hat import SenseHat
 
 from config import Config
 
-sys.path.insert(0, 'temperusb')
+sys.path.insert(0, '/home/pi/pi_weather_station/temperusb')
 import temper
 
 # ============================================================================
